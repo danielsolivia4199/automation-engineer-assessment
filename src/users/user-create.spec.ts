@@ -10,25 +10,32 @@ describe('User Creation (POST /users)', () => {
   let usersService: UsersService;
 
   beforeAll(async () => {
+    // sets up Nest JS testing module
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-
+    // creates NestJS application instance
     app = moduleFixture.createNestApplication();
+    // applys global validation pipe to the application
     app.useGlobalPipes(new ValidationPipe());
+    // gets instance of UsersService from the test module
     usersService = moduleFixture.get<UsersService>(UsersService);
+    // initilazes the NestJS application after all tests
     await app.init();
   });
 
   afterAll(async () => {
+    //closes the Nest JS application after all tests
     await app.close();
   });
 
   afterEach(() => {
+    // resets users array in UsersService after each test
     usersService['users'] = [];
   });
 
   it('should create a new user successfully and return 201', async () => {
+    // for testing: valid user object
     const userData = {
       name: 'Jimmy Dean',
       email: 'jimmy.dean@gmail.com',
@@ -40,13 +47,14 @@ describe('User Creation (POST /users)', () => {
       .send(userData)
       .expect(HttpStatus.CREATED);
 
-    //verify the response
+    //verifies the response body for created user details
     expect(response.body).toHaveProperty('id');
     expect(response.body.name).toEqual(userData.name);
     expect(response.body.email).toEqual(userData.email);
   });
 
   it('should return 400 for invalid user data', async () => {
+    // for testing: invalid user object with invalid name and email
     const invalidUserData = {
       name: '',
       email: 'invaild', 
@@ -57,9 +65,9 @@ describe('User Creation (POST /users)', () => {
       .post('/users')
       .send(invalidUserData);
     
-    //verify response status code
+    //verifies response status code for bad request
     expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-    //verify response body for vaildation error detatils
+    //verifies response body for vaildation error detatils
     expect(response.body).toEqual({
       statusCode: HttpStatus.BAD_REQUEST,
       message: ['email must be an email'],
@@ -68,24 +76,26 @@ describe('User Creation (POST /users)', () => {
   });
 
   it('should return 409 for duplicate user data', async () => {
+    //for testing: valid user object
     const userData = {
       name: 'Jimmy Dean',
       email: 'jimmy.dean@gmail.com',
     };
 
-    //CREATE first user
+    //CREATE user with valid data
     await request(app.getHttpServer())
       .post('/users')
       .send(userData)
-      .expect(HttpStatus.CREATED)
+      .expect(HttpStatus.CREATED) // expecting HTTP 201
 
-    //try to create the same user again
+    //trying to create the same user again
     const response = await request(app.getHttpServer())
       .post('/users')
       .send(userData);
 
-    //verify the resposse
+    //verifies the response satus code for conflict
     expect(response.status).toBe(HttpStatus.CONFLICT);
+    //verifies tthe response body for conflic error details
     expect(response.body).toEqual({
       statusCode: HttpStatus.CONFLICT,
       message: 'User already exists',

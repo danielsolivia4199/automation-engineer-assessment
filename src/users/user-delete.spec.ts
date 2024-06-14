@@ -23,14 +23,17 @@ describe('User Deletion (DELETE /users/{id}', () => {
   });
 
   it('should delete a user, returns a 204 status code', async () => {
-    const createUserDto = {
+    //creates user to be deleted
+    const createUserDto = { //User DTO: Data Transfer Object, used to define the structure of data being transferred between different layers of an application
       name: 'Jimmy Dean',
       email: 'jimmy.dean@gmail.com',
     };
     const createdUser = await usersService.create(createUserDto);
 
+    // sends a DELETE request to delete user
     await usersService.remove(createdUser.id);
 
+    //tries to find the deleted user, expects NotFoundException: used to handle cases where an expected resource cannot be located
     try {
       await usersService.findOne(createdUser.id);
       fail('Expected NotFoundException to be thrown');
@@ -42,6 +45,7 @@ describe('User Deletion (DELETE /users/{id}', () => {
 
   it('should throw NotFoundException when deleting a non-existing user, returns a 404 status code', async () => {
     const nonExistingUserId = 100;
+    //tries to delete user that does not exist
     try {
       await usersService.remove(nonExistingUserId);
       fail('Expected NotFoundException to be thrown');

@@ -27,25 +27,28 @@ describe('User Update (PATCH /users/{id})', () => {
     await app.close();
   });
 
+
+ // for testing: successful update of user details will return 204 status code
   it('should update users details and return 204 status code',
     async () => {
       const initialUserData = {
         name: 'Jimmy Dean',
         email: 'jimmy.dean@gmail.com',
       };
-
+      // creates user with initial data
       const createdUser = await usersService.create(initialUserData);
 
       const updatedUserData = {
         name: 'James Dean',
         email: 'james.dean@gmail.com',
       };
-
+      // sends a patch request to update user's details
       const response = await request(app.getHttpServer())
         .patch(`/users/${createdUser.id}`)
         .send(updatedUserData)
         .expect(HttpStatus.NO_CONTENT);
 
+      // verifies response
       expect(response.body).toEqual({});
 
       const updatedUser = await usersService.findOne(createdUser.id);
@@ -53,7 +56,7 @@ describe('User Update (PATCH /users/{id})', () => {
       expect(updatedUser.name).toEqual(updatedUserData.name);
       expect(updatedUser.email).toEqual(updatedUserData.email);
     });
-
+    // for testing: attempt to update non existant user
     it('should return a 404 status code for updating non-existing user', async () => {
       const nonExistentUserId = 100;
 
@@ -61,7 +64,7 @@ describe('User Update (PATCH /users/{id})', () => {
         name: 'James Dean',
         email: 'james.dean@gmail.com',
       };
-
+      // seds a patch request to update a user with non existant user ID
       const response = await request(app.getHttpServer())
         .patch(`/users/${nonExistentUserId}`)
         .send(updatedUserData)
@@ -73,19 +76,19 @@ describe('User Update (PATCH /users/{id})', () => {
         error: 'Not Found',
     });
     });
-
+    // for testing: invalid input data when updating a user
     it('should return 400 status code for invalid input data', async () => {
       const initialUserData = {
         name: 'Jimmy Dean',
         email: 'jimmy-dean@gmail.com',
       };
-
+      // creats user with valid data
       const createdUser = await usersService.create(initialUserData);
 
       const invalidUserData = {
         email: 'invalid-email',
       };
-
+      //sending patch request with invaild data
       const response = await request(app.getHttpServer())
         .patch(`/users/${createdUser.id}`)
         .send(invalidUserData)
