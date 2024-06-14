@@ -7,6 +7,7 @@ import { User } from './entities/user.entity';
 export class UsersService {
   users: User[] = [];
   userIdCounter = 1;
+  clear: any;
 
   create(createUserDto: CreateUserDto) {
     const existingUser = this.users.find(

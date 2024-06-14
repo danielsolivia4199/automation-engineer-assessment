@@ -10,7 +10,6 @@ Write integration tests for the following API endpoints using JavaScript and any
   - Test that a valid user is created successfully and returns a 201 status code.
   - Test input validation: sending invalid data should return a 400 status code.
   - Test handling of duplicate users (email needs to be unique).
-
 - GET /users
     - Test that it returns all users with a 200 status code.
     - Test that it returns an empty array if no users are found.
